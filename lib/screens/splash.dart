@@ -55,8 +55,13 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ],
               ),
-              child: Center(
-                child: Icon(Icons.celebration, size: 70, color: Colors.blue.shade700),
+              child: ClipOval(
+                child: Image.asset(
+                  'img/logotipo.png',
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -67,14 +72,6 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Eventos Culturais, Esportivos e Educacionais',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 18,
               ),
             ),
             const SizedBox(height: 32),
