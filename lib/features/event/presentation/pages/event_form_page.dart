@@ -39,7 +39,6 @@ class _EventFormPageState extends State<EventFormPage> {
   /// Estados do formulário
   String? _selectedEventType;
   DateTime? _selectedDate;
-  String? _customEventType;
   String? _dateError;
   
   /// Controla o estado de salvamento
@@ -70,7 +69,6 @@ class _EventFormPageState extends State<EventFormPage> {
         _selectedEventType = event.tipo;
       } else {
         _selectedEventType = 'Outros';
-        _customEventType = event.tipo;
         _customTypeController.text = event.tipo;
       }
     }
@@ -98,13 +96,24 @@ class _EventFormPageState extends State<EventFormPage> {
       });
       
       // Determina o tipo final do evento
-      final finalEventType = _selectedEventType == 'Outros'
-          ? (_customEventType?.trim() ?? '')
-          : (_selectedEventType ?? '');
+      String finalEventType;
       
-      if (finalEventType.isEmpty) {
+      if (_selectedEventType == null || _selectedEventType!.isEmpty) {
         _showErrorSnackBar('Tipo do evento é obrigatório');
         return;
+      }
+      
+      if (_selectedEventType == 'Outros') {
+        // Para tipo "Outros", usa o tipo personalizado
+        final customType = _customTypeController.text.trim();
+        if (customType.isEmpty) {
+          _showErrorSnackBar('Tipo personalizado é obrigatório');
+          return;
+        }
+        finalEventType = customType;
+      } else {
+        // Para tipos predefinidos, usa o tipo selecionado
+        finalEventType = _selectedEventType!;
       }
       
       // Cria o evento
@@ -250,7 +259,6 @@ class _EventFormPageState extends State<EventFormPage> {
                   setState(() {
                     _selectedEventType = value;
                     if (value != 'Outros') {
-                      _customEventType = null;
                       _customTypeController.clear();
                     }
                   });
