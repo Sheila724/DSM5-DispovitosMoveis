@@ -214,12 +214,7 @@ class _EventListPageState extends State<EventListPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: _navigateToNewEvent,
-              icon: const Icon(Icons.add),
-              label: const Text('Adicionar Evento'),
-            ),
+
           ],
         ),
       ),
