@@ -14,16 +14,25 @@ class _FormularioEventoEdicaoState extends State<FormularioEventoEdicao> {
   String? _erroData;
   late TextEditingController _nomeController;
   late TextEditingController _descricaoController;
-  late TextEditingController _tipoController;
   DateTime? _dataSelecionada;
+  String? _tipoSelecionado;
+  String? _tipoOutros;
+  final List<String> _tiposEvento = ['Esportivo', 'Cultural', 'Educacional', 'Outros'];
 
   @override
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.evento.nome);
     _descricaoController = TextEditingController(text: widget.evento.descricao);
-    _tipoController = TextEditingController(text: widget.evento.tipo);
     _dataSelecionada = widget.evento.data;
+    
+    // Inicializar o tipo selecionado baseado no evento
+    if (_tiposEvento.contains(widget.evento.tipo)) {
+      _tipoSelecionado = widget.evento.tipo;
+    } else {
+      _tipoSelecionado = 'Outros';
+      _tipoOutros = widget.evento.tipo;
+    }
   }
 
   @override
@@ -47,11 +56,60 @@ class _FormularioEventoEdicaoState extends State<FormularioEventoEdicao> {
               hint: 'Digite a descrição',
               icon: Icons.description,
             ),
-            Editor(
-              controller: _tipoController,
-              label: 'Tipo',
-              hint: 'Cultural, Esportivo, Educacional...',
-              icon: Icons.category,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tipo do Evento',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _tipoSelecionado,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      prefixIcon: const Icon(Icons.category),
+                    ),
+                    items: _tiposEvento.map((String tipo) {
+                      return DropdownMenuItem<String>(
+                        value: tipo,
+                        child: Text(tipo),
+                      );
+                    }).toList(),
+                    onChanged: (String? novoTipo) {
+                      setState(() {
+                        _tipoSelecionado = novoTipo;
+                        if (novoTipo != 'Outros') {
+                          _tipoOutros = null;
+                        }
+                      });
+                    },
+                  ),
+                  if (_tipoSelecionado == 'Outros') ...[
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      onChanged: (value) => _tipoOutros = value,
+                      initialValue: _tipoOutros,
+                      decoration: InputDecoration(
+                        labelText: 'Especifique o tipo',
+                        hintText: 'Digite o tipo específico do evento',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: const Icon(Icons.edit),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -100,7 +158,9 @@ class _FormularioEventoEdicaoState extends State<FormularioEventoEdicao> {
               onPressed: () {
                 final String nome = _nomeController.text;
                 final String descricao = _descricaoController.text;
-                final String tipo = _tipoController.text;
+                final String tipo = _tipoSelecionado == 'Outros' 
+                    ? (_tipoOutros ?? '') 
+                    : (_tipoSelecionado ?? '');
                 final DateTime? data = _dataSelecionada;
                 final hoje = DateTime.now();
                 if (nome.isNotEmpty && descricao.isNotEmpty && tipo.isNotEmpty && data != null && !data.isBefore(DateTime(hoje.year, hoje.month, hoje.day))) {
@@ -140,8 +200,10 @@ class _FormularioEventoState extends State<FormularioEvento> {
   String? _erroData;
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
-  final TextEditingController _tipoController = TextEditingController();
   DateTime? _dataSelecionada;
+  String? _tipoSelecionado;
+  String? _tipoOutros;
+  final List<String> _tiposEvento = ['Esportivo', 'Cultural', 'Educacional', 'Outros'];
 
   @override
   Widget build(BuildContext context) {
@@ -164,11 +226,60 @@ class _FormularioEventoState extends State<FormularioEvento> {
               hint: 'Digite a descrição',
               icon: Icons.description,
             ),
-            Editor(
-              controller: _tipoController,
-              label: 'Tipo',
-              hint: 'Cultural, Esportivo, Educacional...',
-              icon: Icons.category,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tipo do Evento',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _tipoSelecionado,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      prefixIcon: const Icon(Icons.category),
+                    ),
+                    items: _tiposEvento.map((String tipo) {
+                      return DropdownMenuItem<String>(
+                        value: tipo,
+                        child: Text(tipo),
+                      );
+                    }).toList(),
+                    onChanged: (String? novoTipo) {
+                      setState(() {
+                        _tipoSelecionado = novoTipo;
+                        if (novoTipo != 'Outros') {
+                          _tipoOutros = null;
+                        }
+                      });
+                    },
+                  ),
+                  if (_tipoSelecionado == 'Outros') ...[
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      onChanged: (value) => _tipoOutros = value,
+                      initialValue: _tipoOutros,
+                      decoration: InputDecoration(
+                        labelText: 'Especifique o tipo',
+                        hintText: 'Digite o tipo específico do evento',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: const Icon(Icons.edit),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -217,7 +328,9 @@ class _FormularioEventoState extends State<FormularioEvento> {
               onPressed: () {
                 final String nome = _nomeController.text;
                 final String descricao = _descricaoController.text;
-                final String tipo = _tipoController.text;
+                final String tipo = _tipoSelecionado == 'Outros' 
+                    ? (_tipoOutros ?? '') 
+                    : (_tipoSelecionado ?? '');
                 final DateTime? data = _dataSelecionada;
                 final hoje = DateTime.now();
                 if (nome.isNotEmpty && descricao.isNotEmpty && tipo.isNotEmpty && data != null && !data.isBefore(DateTime(hoje.year, hoje.month, hoje.day))) {
