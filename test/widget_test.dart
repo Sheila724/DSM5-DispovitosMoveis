@@ -1,9 +1,7 @@
-// This is a basic Flutter widget test.
+// Testes de widget para o aplicativo Eventos Locais
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Estes testes verificam se os componentes principais da aplicação
+// funcionam corretamente, incluindo navegação e funcionalidades básicas.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,20 +9,32 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trabalho/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('EventosLocaisApp Tests', () {
+    testWidgets('App deve inicializar e mostrar splash screen', (WidgetTester tester) async {
+      // Constrói nossa aplicação e dispara um frame
+      await tester.pumpWidget(const EventosLocaisApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      // Verifica se o app inicializa corretamente
+      expect(find.byType(MaterialApp), findsOneWidget);
+      
+      // Aguarda a splash screen aparecer
+      await tester.pump();
+      
+      // Verifica se encontra elementos da splash screen
+      expect(find.byType(Scaffold), findsOneWidget);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    testWidgets('App deve ter configurações corretas', (WidgetTester tester) async {
+      // Constrói nossa aplicação
+      await tester.pumpWidget(const EventosLocaisApp());
+      
+      // Busca o MaterialApp widget
+      final MaterialApp app = tester.widget(find.byType(MaterialApp));
+      
+      // Verifica configurações básicas
+      expect(app.title, 'Eventos Locais');
+      expect(app.debugShowCheckedModeBanner, false);
+      expect(app.locale, const Locale('pt', 'BR'));
+    });
   });
 }
