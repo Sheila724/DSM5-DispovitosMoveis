@@ -5,10 +5,6 @@ import '../../../../shared/widgets/event_card.dart';
 import '../../../../shared/services/event_storage_service.dart';
 import '../../domain/event_model.dart';
 
-/// Página principal que exibe a lista de eventos
-/// 
-/// Esta página é Stateful pois gerencia o estado da lista de eventos
-/// e precisa se atualizar quando eventos são adicionados/editados/removidos
 class EventListPage extends StatefulWidget {
   const EventListPage({super.key});
 
@@ -17,13 +13,14 @@ class EventListPage extends StatefulWidget {
 }
 
 class _EventListPageState extends State<EventListPage> {
-  /// Lista de eventos carregados
   List<EventModel> _events = [];
-  
-  /// Controla o estado de carregamento
+  List<EventModel> _filteredEvents = [];
+
   bool _isLoading = true;
-  
-  /// Serviço de armazenamento de eventos
+  String _searchQuery = '';
+  String _selectedFilter = 'Todos';
+  bool _sortAscending = true;
+
   final EventStorageService _storageService = EventStorageService.instance;
 
   @override
@@ -32,90 +29,57 @@ class _EventListPageState extends State<EventListPage> {
     _loadEvents();
   }
 
-  /// Carrega os eventos do armazenamento local
   Future<void> _loadEvents() async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
-      
+      setState(() => _isLoading = true);
       final events = await _storageService.loadEvents();
-      
       if (mounted) {
         setState(() {
           _events = events;
+          _applyFilters();
           _isLoading = false;
         });
       }
     } catch (e) {
       debugPrint('Erro ao carregar eventos: $e');
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        _showErrorSnackBar('Erro ao carregar eventos');
-      }
+      setState(() => _isLoading = false);
+      _showErrorSnackBar('Erro ao carregar eventos');
     }
   }
 
-  /// Navega para a tela de criação de novo evento
+  void _applyFilters() {
+    setState(() {
+      _filteredEvents = _events.where((event) {
+        final matchesSearch = event.nome.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            event.descricao.toLowerCase().contains(_searchQuery.toLowerCase());
+
+        final matchesFilter =
+            _selectedFilter == 'Todos' || event.tipo.toLowerCase() == _selectedFilter.toLowerCase();
+
+        return matchesSearch && matchesFilter;
+      }).toList();
+
+      _filteredEvents.sort((a, b) =>
+          _sortAscending ? a.data.compareTo(b.data) : b.data.compareTo(a.data));
+    });
+  }
+
   Future<void> _navigateToNewEvent() async {
     final result = await Navigator.of(context).pushNamed(AppRoutes.eventForm);
-    
-    // Se um evento foi criado, recarrega a lista
-    if (result == true) {
-      await _loadEvents();
-    }
+    if (result == true) await _loadEvents();
   }
 
-  /// Navega para a tela de edição de evento
   Future<void> _navigateToEditEvent(EventModel event, int index) async {
     final result = await Navigator.of(context).pushNamed(
       AppRoutes.eventEdit,
       arguments: {'event': event, 'index': index},
     );
-    
-    // Se o evento foi editado, recarrega a lista
-    if (result == true) {
-      await _loadEvents();
-    }
+    if (result == true) await _loadEvents();
   }
 
-  /// Exibe diálogo de confirmação para excluir evento
-  Future<void> _showDeleteConfirmation(EventModel event, int index) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirmar Exclusão'),
-          content: Text('Deseja realmente excluir o evento \"${event.nome}\"?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
-              child: const Text('Excluir'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed == true) {
-      await _deleteEvent(index);
-    }
-  }
-
-  /// Remove um evento da lista
   Future<void> _deleteEvent(int index) async {
     try {
       final success = await _storageService.removeEvent(index);
-      
       if (success) {
         await _loadEvents();
         _showSuccessSnackBar('Evento excluído com sucesso!');
@@ -128,12 +92,10 @@ class _EventListPageState extends State<EventListPage> {
     }
   }
 
-  /// Navega de volta para a splash screen
   void _navigateToSplash() {
     Navigator.of(context).pushReplacementNamed(AppRoutes.splash);
   }
 
-  /// Exibe snackbar de sucesso
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -144,7 +106,6 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  /// Exibe snackbar de erro
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -162,21 +123,83 @@ class _EventListPageState extends State<EventListPage> {
         title: Text(AppConstants.appName),
         actions: [
           IconButton(
+            icon: Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward),
+            tooltip: 'Ordenar por data',
+            onPressed: () {
+              setState(() {
+                _sortAscending = !_sortAscending;
+                _applyFilters();
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.home),
             tooltip: 'Voltar para tela inicial',
             onPressed: _navigateToSplash,
           ),
         ],
       ),
-      
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : _events.isEmpty
               ? _buildEmptyState()
-              : _buildEventList(),
-      
+              : Column(
+                  children: [
+                    _buildSearchAndFilter(),
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: _loadEvents,
+                        child: ListView.builder(
+                          itemCount: _filteredEvents.length,
+                          itemBuilder: (context, index) {
+                            final event = _filteredEvents[index];
+                            return Dismissible(
+                              key: Key('${event.nome}-$index'),
+                              direction: DismissDirection.endToStart,
+                              background: Container(
+                                color: Theme.of(context).colorScheme.error,
+                                alignment: Alignment.centerRight,
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: const Icon(Icons.delete, color: Colors.white),
+                              ),
+                              confirmDismiss: (_) async {
+                                return await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Confirmar Exclusão'),
+                                        content: Text(
+                                            'Deseja realmente excluir o evento "${event.nome}"?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(false),
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(true),
+                                            style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  Theme.of(context).colorScheme.error,
+                                            ),
+                                            child: const Text('Excluir'),
+                                          ),
+                                        ],
+                                      ),
+                                    ) ??
+                                    false;
+                              },
+                              onDismissed: (_) => _deleteEvent(index),
+                              child: EventCard(
+                                event: event,
+                                onEdit: () => _navigateToEditEvent(event, index),
+                                onDelete: () => _deleteEvent(index),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToNewEvent,
         tooltip: 'Adicionar novo evento',
@@ -185,7 +208,6 @@ class _EventListPageState extends State<EventListPage> {
     );
   }
 
-  /// Constrói o estado vazio (quando não há eventos)
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -193,48 +215,70 @@ class _EventListPageState extends State<EventListPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.event_busy,
-              size: 80,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+            Icon(Icons.event_busy,
+                size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 24),
             Text(
               'Nenhum evento cadastrado',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
               'Adicione seu primeiro evento tocando no botão +',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
-
           ],
         ),
       ),
     );
   }
 
-  /// Constrói a lista de eventos
-  Widget _buildEventList() {
-    return RefreshIndicator(
-      onRefresh: _loadEvents,
-      child: ListView.builder(
-        itemCount: _events.length,
-        itemBuilder: (context, index) {
-          final event = _events[index];
-          return EventCard(
-            event: event,
-            onEdit: () => _navigateToEditEvent(event, index),
-            onDelete: () => _showDeleteConfirmation(event, index),
-          );
-        },
+  Widget _buildSearchAndFilter() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: TextField(
+              decoration: const InputDecoration(
+                labelText: 'Buscar eventos...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                _searchQuery = value;
+                _applyFilters();
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: DropdownButtonFormField<String>(
+              value: _selectedFilter,
+              decoration: const InputDecoration(
+                labelText: 'Tipo',
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'Todos', child: Text('Todos')),
+                DropdownMenuItem(value: 'Esportivo', child: Text('Esportivo')),
+                DropdownMenuItem(value: 'Cultural', child: Text('Cultural')),
+                DropdownMenuItem(value: 'Educacional', child: Text('Educacional')),
+              ],
+              onChanged: (value) {
+                _selectedFilter = value ?? 'Todos';
+                _applyFilters();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

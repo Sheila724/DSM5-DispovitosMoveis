@@ -7,14 +7,8 @@ import '../../../../shared/services/event_storage_service.dart';
 import '../../domain/event_model.dart';
 
 /// Página de formulário para criar/editar eventos
-/// 
-/// Esta página é Stateful pois gerencia o estado do formulário
-/// e validações dos campos de entrada
 class EventFormPage extends StatefulWidget {
-  /// Evento a ser editado (null para criação de novo evento)
   final EventModel? event;
-  
-  /// Índice do evento na lista (usado para edição)
   final int? eventIndex;
 
   const EventFormPage({
@@ -28,26 +22,19 @@ class EventFormPage extends StatefulWidget {
 }
 
 class _EventFormPageState extends State<EventFormPage> {
-  /// Chave global para validação do formulário
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  
-  /// Controladores dos campos de texto
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _customTypeController = TextEditingController();
-  
-  /// Estados do formulário
+
   String? _selectedEventType;
   DateTime? _selectedDate;
   String? _dateError;
-  
-  /// Controla o estado de salvamento
   bool _isSaving = false;
-  
-  /// Serviço de armazenamento
+
   final EventStorageService _storageService = EventStorageService.instance;
 
-  /// Indica se está no modo de edição
   bool get _isEditing => widget.event != null;
 
   @override
@@ -56,15 +43,13 @@ class _EventFormPageState extends State<EventFormPage> {
     _initializeForm();
   }
 
-  /// Inicializa o formulário com dados do evento (se editando)
   void _initializeForm() {
     if (_isEditing && widget.event != null) {
       final event = widget.event!;
       _nameController.text = event.nome;
       _descriptionController.text = event.descricao;
       _selectedDate = event.data;
-      
-      // Verifica se o tipo está na lista padrão
+
       if (AppConstants.eventTypes.contains(event.tipo)) {
         _selectedEventType = event.tipo;
       } else {
@@ -74,37 +59,29 @@ class _EventFormPageState extends State<EventFormPage> {
     }
   }
 
-  /// Valida e salva o formulário
   Future<void> _saveEvent() async {
-    // Remove foco dos campos para validar
     FocusScope.of(context).unfocus();
-    
-    // Valida data
+
     final dateValidation = _validateDate();
     setState(() {
       _dateError = dateValidation;
     });
-    
-    // Valida formulário
+
     if (!_formKey.currentState!.validate() || dateValidation != null) {
       return;
     }
-    
+
     try {
-      setState(() {
-        _isSaving = true;
-      });
-      
-      // Determina o tipo final do evento
+      setState(() => _isSaving = true);
+
       String finalEventType;
-      
+
       if (_selectedEventType == null || _selectedEventType!.isEmpty) {
         _showErrorSnackBar('Tipo do evento é obrigatório');
         return;
       }
-      
+
       if (_selectedEventType == 'Outros') {
-        // Para tipo "Outros", usa o tipo personalizado
         final customType = _customTypeController.text.trim();
         if (customType.isEmpty) {
           _showErrorSnackBar('Tipo personalizado é obrigatório');
@@ -112,73 +89,57 @@ class _EventFormPageState extends State<EventFormPage> {
         }
         finalEventType = customType;
       } else {
-        // Para tipos predefinidos, usa o tipo selecionado
         finalEventType = _selectedEventType!;
       }
-      
-      // Cria o evento
+
       final event = EventModel(
         nome: _nameController.text.trim(),
         descricao: _descriptionController.text.trim(),
         data: _selectedDate!,
         tipo: finalEventType,
       );
-      
+
       bool success;
-      
       if (_isEditing && widget.eventIndex != null) {
-        // Atualiza evento existente
         success = await _storageService.updateEvent(widget.eventIndex!, event);
       } else {
-        // Adiciona novo evento
         success = await _storageService.addEvent(event);
       }
-      
+
       if (success) {
-        _showSuccessSnackBar(
-          _isEditing ? 'Evento atualizado com sucesso!' : 'Evento criado com sucesso!'
-        );
-        
-        // Retorna true para indicar que o evento foi salvo
+        _showSuccessSnackBar(_isEditing
+            ? 'Evento atualizado com sucesso!'
+            : 'Evento criado com sucesso!');
         Navigator.of(context).pop(true);
       } else {
         _showErrorSnackBar('Erro ao salvar evento');
       }
-      
     } catch (e) {
       debugPrint('Erro ao salvar evento: $e');
       _showErrorSnackBar('Erro inesperado ao salvar evento');
     } finally {
       if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
+        setState(() => _isSaving = false);
       }
     }
   }
 
-  /// Valida a data selecionada
   String? _validateDate() {
     if (_selectedDate == null) {
       return 'Data é obrigatória';
     }
-    
+
     final today = DateTime.now();
     final todayDate = DateTime(today.year, today.month, today.day);
-    final selectedDate = DateTime(
-      _selectedDate!.year,
-      _selectedDate!.month,
-      _selectedDate!.day,
-    );
-    
+    final selectedDate =
+        DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day);
+
     if (selectedDate.isBefore(todayDate)) {
       return 'Selecione uma data presente ou futura';
     }
-    
     return null;
   }
 
-  /// Exibe snackbar de sucesso
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -189,7 +150,6 @@ class _EventFormPageState extends State<EventFormPage> {
     );
   }
 
-  /// Exibe snackbar de erro
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -225,7 +185,6 @@ class _EventFormPageState extends State<EventFormPage> {
             ),
         ],
       ),
-      
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -233,26 +192,25 @@ class _EventFormPageState extends State<EventFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Campo nome do evento
               CustomTextFormField(
                 controller: _nameController,
                 label: 'Nome do Evento',
                 hint: 'Digite o nome do evento',
-                icon: Icons.event,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 isRequired: true,
               ),
-              
-              // Campo descrição
+              const SizedBox(height: 12),
               CustomTextFormField(
                 controller: _descriptionController,
                 label: 'Descrição',
                 hint: 'Descreva o evento',
-                icon: Icons.description,
                 maxLines: 3,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                 isRequired: true,
               ),
-              
-              // Dropdown tipo de evento
+              const SizedBox(height: 12),
               EventTypeDropdown(
                 selectedType: _selectedEventType,
                 onChanged: (value) {
@@ -265,18 +223,17 @@ class _EventFormPageState extends State<EventFormPage> {
                 },
                 isRequired: true,
               ),
-              
-              // Campo tipo personalizado (só aparece se selecionou 'Outros')
               if (_selectedEventType == 'Outros') ...[
                 const SizedBox(height: 8),
                 CustomTextFormField(
                   controller: _customTypeController,
                   label: 'Tipo Personalizado',
                   hint: 'Digite o tipo específico do evento',
-                  icon: Icons.edit,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                   isRequired: true,
                   validator: (value) {
-                    if (_selectedEventType == 'Outros' && 
+                    if (_selectedEventType == 'Outros' &&
                         (value == null || value.trim().isEmpty)) {
                       return 'Tipo personalizado é obrigatório';
                     }
@@ -284,8 +241,7 @@ class _EventFormPageState extends State<EventFormPage> {
                   },
                 ),
               ],
-              
-              // Campo seleção de data
+              const SizedBox(height: 12),
               DatePickerField(
                 selectedDate: _selectedDate,
                 onDateSelected: (date) {
@@ -297,10 +253,7 @@ class _EventFormPageState extends State<EventFormPage> {
                 isRequired: true,
                 errorText: _dateError,
               ),
-              
               const SizedBox(height: 32),
-              
-              // Botão salvar
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

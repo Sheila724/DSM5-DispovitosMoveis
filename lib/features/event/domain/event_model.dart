@@ -1,16 +1,25 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+
+/// Enum de categorias padrão de eventos
+enum EventCategory {
+  esportivo,
+  cultural,
+  educacional,
+  personalizado,
+}
 
 /// Modelo de dados para representar um evento
 class EventModel {
   /// Nome do evento
   final String nome;
-  
+
   /// Descrição detalhada do evento
   final String descricao;
-  
+
   /// Data e hora do evento
   final DateTime data;
-  
+
   /// Tipo/categoria do evento (cultural, esportivo, educacional, etc.)
   final String tipo;
 
@@ -24,19 +33,19 @@ class EventModel {
 
   /// Converte o evento para um Map (JSON)
   Map<String, dynamic> toJson() => {
-    'nome': nome,
-    'descricao': descricao,
-    'data': data.toIso8601String(),
-    'tipo': tipo,
-  };
+        'nome': nome,
+        'descricao': descricao,
+        'data': data.toIso8601String(),
+        'tipo': tipo,
+      };
 
   /// Cria um evento a partir de um Map (JSON)
   factory EventModel.fromJson(Map<String, dynamic> json) => EventModel(
-    nome: json['nome'] ?? '',
-    descricao: json['descricao'] ?? '',
-    data: DateTime.parse(json['data']),
-    tipo: json['tipo'] ?? '',
-  );
+        nome: json['nome'] ?? '',
+        descricao: json['descricao'] ?? '',
+        data: DateTime.parse(json['data']),
+        tipo: json['tipo'] ?? '',
+      );
 
   /// Codifica uma lista de eventos para string JSON
   static String encodeEventList(List<EventModel> eventos) =>
@@ -68,6 +77,23 @@ class EventModel {
     );
   }
 
+  /// Retorna true se a data for hoje ou futura
+  bool get isValidDate => !data.isBefore(DateTime.now());
+
+  /// Retorna um ícone representativo baseado no tipo/categoria
+  IconData get icon {
+    switch (tipo.toLowerCase()) {
+      case 'esportivo':
+        return Icons.sports_soccer;
+      case 'cultural':
+        return Icons.music_note;
+      case 'educacional':
+        return Icons.school;
+      default:
+        return Icons.event;
+    }
+  }
+
   @override
   String toString() {
     return 'EventModel(nome: $nome, descricao: $descricao, data: $data, tipo: $tipo)';
@@ -85,9 +111,6 @@ class EventModel {
 
   @override
   int get hashCode {
-    return nome.hashCode ^
-        descricao.hashCode ^
-        data.hashCode ^
-        tipo.hashCode;
+    return nome.hashCode ^ descricao.hashCode ^ data.hashCode ^ tipo.hashCode;
   }
 }
