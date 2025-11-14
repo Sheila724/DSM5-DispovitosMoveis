@@ -1,39 +1,25 @@
-import 'package:flutter/material.dart';
-import 'core/theme/app_theme.dart';
-import 'core/routes/app_routes.dart';
-import 'core/routes/route_generator.dart';
-import 'core/constants/app_constants.dart';
+// lib/main.dart
 
-/// Função principal da aplicação
-/// 
-/// Inicializa o aplicativo Flutter com configurações
-/// de tema, rotas e outros serviços necessários
+import 'package:flutter/material.dart';
+import 'screens/splash.dart';
+
 void main() {
-  runApp(const EventosLocaisApp());
+  runApp(const AppEventos());
 }
 
-/// Widget principal da aplicação
-/// 
-/// Define configurações globais como tema, rotas e título
-class EventosLocaisApp extends StatelessWidget {
-  const EventosLocaisApp({super.key});
+class AppEventos extends StatelessWidget {
+  const AppEventos({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Configurações básicas
-      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      
-      // Tema da aplicação
-      theme: AppTheme.lightTheme,
-      
-      // Configuração de rotas
-      initialRoute: AppRoutes.splash,
-      onGenerateRoute: RouteGenerator.generateRoute,
-      
-      // Configuração de localização
-      locale: const Locale('pt', 'BR'),
+      title: 'Eventos Locais',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0xFF6750A4), // Roxo moderno
+      ),
+      home: const SplashScreen(),
     );
   }
 }
