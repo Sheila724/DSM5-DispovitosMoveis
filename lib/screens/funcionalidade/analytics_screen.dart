@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../services/lib/services/analytics_service.dart';
+import 'package:trabalho/services/lib/services/analytics_service.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -50,8 +50,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     barTouchData: BarTouchData(enabled: false),
                     borderData: FlBorderData(show: false),
                     titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false)),
+                      rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false)),
                       leftTitles: const AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
@@ -63,13 +65,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           showTitles: true,
                           reservedSize: 42,
                           getTitlesWidget: (value, meta) {
-                            if (value.toInt() < 0 || value.toInt() >= keys.length) {
+                            if (value.toInt() < 0 ||
+                                value.toInt() >= keys.length) {
                               return const SizedBox();
                             }
-                            final label = keys[value.toInt()].replaceAll("_", "\n");
+                            final label =
+                                keys[value.toInt()].replaceAll("_", "\n");
                             return Padding(
                               padding: const EdgeInsets.only(top: 4),
-                              child: Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10)),
+                              child: Text(label,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 10)),
                             );
                           },
                         ),
@@ -77,7 +83,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     ),
                     barGroups: List.generate(keys.length, (i) {
                       final key = keys[i];
-                      final valor = (data[key] as num).toDouble();
+                      final raw = data[key];
+
+                      double valor;
+                      if (raw == null) {
+                        valor = 0;
+                      } else if (raw is num) {
+                        valor = raw.toDouble();
+                      } else if (raw is String) {
+                        valor = double.tryParse(raw) ??
+                            (int.tryParse(raw)?.toDouble() ?? 0);
+                      } else {
+                        valor = 0;
+                      }
 
                       return BarChartGroupData(
                         x: i,
@@ -117,7 +135,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         final v = data[k];
                         return ListTile(
                           title: Text(k),
-                          trailing: Text(v.toString()),
+                          trailing: SizedBox(
+                            width: 90,
+                            child: Text(
+                              v.toString(),
+                              textAlign: TextAlign.right,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         );
                       },
                     ),
@@ -131,7 +156,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _reset,
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
                     child: const Text('Resetar métricas'),
                   ),
                 ),

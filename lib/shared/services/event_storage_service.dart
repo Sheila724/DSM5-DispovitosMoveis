@@ -4,13 +4,13 @@ import '../../features/event/domain/event_model.dart';
 import '../../core/constants/app_constants.dart';
 
 /// Serviço responsável pelo armazenamento local de eventos
-/// 
+///
 /// Utiliza SharedPreferences para persistir os dados localmente
 /// Implementa padrão Repository para abstrair a fonte de dados
 class EventStorageService {
   /// Instância única do serviço (Singleton)
   static EventStorageService? _instance;
-  
+
   /// SharedPreferences para armazenamento local
   SharedPreferences? _prefs;
 
@@ -29,7 +29,7 @@ class EventStorageService {
   }
 
   /// Salva a lista de eventos no armazenamento local
-  /// 
+  ///
   /// [events] Lista de eventos a ser salva
   /// Retorna [bool] indicando sucesso da operação
   Future<bool> saveEvents(List<EventModel> events) async {
@@ -44,7 +44,7 @@ class EventStorageService {
   }
 
   /// Carrega a lista de eventos do armazenamento local
-  /// 
+  ///
   /// Retorna [List<EventModel>] lista de eventos ou lista vazia se houver erro
   Future<List<EventModel>> loadEvents() async {
     try {
@@ -58,7 +58,7 @@ class EventStorageService {
   }
 
   /// Adiciona um novo evento à lista existente
-  /// 
+  ///
   /// [event] Evento a ser adicionado
   /// Retorna [bool] indicando sucesso da operação
   Future<bool> addEvent(EventModel event) async {
@@ -73,7 +73,7 @@ class EventStorageService {
   }
 
   /// Atualiza um evento existente na lista
-  /// 
+  ///
   /// [index] Índice do evento a ser atualizado
   /// [updatedEvent] Evento com as informações atualizadas
   /// Retorna [bool] indicando sucesso da operação
@@ -92,7 +92,7 @@ class EventStorageService {
   }
 
   /// Remove um evento da lista
-  /// 
+  ///
   /// [index] Índice do evento a ser removido
   /// Retorna [bool] indicando sucesso da operação
   Future<bool> removeEvent(int index) async {
@@ -110,7 +110,7 @@ class EventStorageService {
   }
 
   /// Limpa todos os eventos do armazenamento
-  /// 
+  ///
   /// Retorna [bool] indicando sucesso da operação
   Future<bool> clearAllEvents() async {
     try {

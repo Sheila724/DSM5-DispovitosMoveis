@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 Future<Database> getDatabase() async {
@@ -50,5 +49,4 @@ Future<Database> getDatabase() async {
       },
     ),
   );
-  
 }

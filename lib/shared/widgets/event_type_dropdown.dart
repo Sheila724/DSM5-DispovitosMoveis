@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_constants.dart';
 
 /// Widget reutilizável para seleção de tipo de evento
-/// 
+///
 /// Este componente é Stateless pois recebe o estado via callbacks,
 /// seguindo o padrão de elevação de estado (lifting state up)
 class EventTypeDropdown extends StatelessWidget {
   /// Tipo atualmente selecionado
   final String? selectedType;
-  
+
   /// Callback chamado quando um tipo é selecionado
   final ValueChanged<String?> onChanged;
-  
+
   /// Define se o campo é obrigatório
   final bool isRequired;
 
@@ -33,9 +33,9 @@ class EventTypeDropdown extends StatelessWidget {
           Text(
             isRequired ? 'Tipo do Evento *' : 'Tipo do Evento',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
@@ -62,7 +62,7 @@ class EventTypeDropdown extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Validador para o campo de tipo de evento
   String? _validator(String? value) {
     if (value == null || value.isEmpty) {

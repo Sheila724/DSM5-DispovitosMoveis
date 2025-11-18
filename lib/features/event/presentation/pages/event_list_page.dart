@@ -50,11 +50,13 @@ class _EventListPageState extends State<EventListPage> {
   void _applyFilters() {
     setState(() {
       _filteredEvents = _events.where((event) {
-        final matchesSearch = event.nome.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        final matchesSearch = event.nome
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()) ||
             event.descricao.toLowerCase().contains(_searchQuery.toLowerCase());
 
-        final matchesFilter =
-            _selectedFilter == 'Todos' || event.tipo.toLowerCase() == _selectedFilter.toLowerCase();
+        final matchesFilter = _selectedFilter == 'Todos' ||
+            event.tipo.toLowerCase() == _selectedFilter.toLowerCase();
 
         return matchesSearch && matchesFilter;
       }).toList();
@@ -120,10 +122,11 @@ class _EventListPageState extends State<EventListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppConstants.appName),
+        title: const Text(AppConstants.appName),
         actions: [
           IconButton(
-            icon: Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward),
+            icon: Icon(
+                _sortAscending ? Icons.arrow_upward : Icons.arrow_downward),
             tooltip: 'Ordenar por data',
             onPressed: () {
               setState(() {
@@ -159,8 +162,10 @@ class _EventListPageState extends State<EventListPage> {
                               background: Container(
                                 color: Theme.of(context).colorScheme.error,
                                 alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                child: const Icon(Icons.delete, color: Colors.white),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                child: const Icon(Icons.delete,
+                                    color: Colors.white),
                               ),
                               confirmDismiss: (_) async {
                                 return await showDialog<bool>(
@@ -171,14 +176,18 @@ class _EventListPageState extends State<EventListPage> {
                                             'Deseja realmente excluir o evento "${event.nome}"?'),
                                         actions: [
                                           TextButton(
-                                            onPressed: () => Navigator.of(context).pop(false),
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
                                             child: const Text('Cancelar'),
                                           ),
                                           TextButton(
-                                            onPressed: () => Navigator.of(context).pop(true),
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
                                             style: TextButton.styleFrom(
-                                              foregroundColor:
-                                                  Theme.of(context).colorScheme.error,
+                                              foregroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .error,
                                             ),
                                             child: const Text('Excluir'),
                                           ),
@@ -190,7 +199,8 @@ class _EventListPageState extends State<EventListPage> {
                               onDismissed: (_) => _deleteEvent(index),
                               child: EventCard(
                                 event: event,
-                                onEdit: () => _navigateToEditEvent(event, index),
+                                onEdit: () =>
+                                    _navigateToEditEvent(event, index),
                                 onDelete: () => _deleteEvent(index),
                               ),
                             );
@@ -216,7 +226,8 @@ class _EventListPageState extends State<EventListPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.event_busy,
-                size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                size: 80,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 24),
             Text(
               'Nenhum evento cadastrado',
@@ -270,7 +281,8 @@ class _EventListPageState extends State<EventListPage> {
                 DropdownMenuItem(value: 'Todos', child: Text('Todos')),
                 DropdownMenuItem(value: 'Esportivo', child: Text('Esportivo')),
                 DropdownMenuItem(value: 'Cultural', child: Text('Cultural')),
-                DropdownMenuItem(value: 'Educacional', child: Text('Educacional')),
+                DropdownMenuItem(
+                    value: 'Educacional', child: Text('Educacional')),
               ],
               onChanged: (value) {
                 _selectedFilter = value ?? 'Todos';

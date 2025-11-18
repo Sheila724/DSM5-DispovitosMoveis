@@ -4,7 +4,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/services/event_storage_service.dart';
 
 /// Página de splash screen da aplicação
-/// 
+///
 /// Esta página é mostrada ao inicializar o app e redireciona
 /// automaticamente para a lista de eventos após o carregamento
 class SplashPage extends StatefulWidget {
@@ -18,7 +18,7 @@ class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
   /// Controla se está carregando
   bool _isLoading = true;
-  
+
   /// Controlador de animação para efeitos visuais
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -62,10 +62,10 @@ class _SplashPageState extends State<SplashPage>
     try {
       // Inicializa o serviço de armazenamento
       await EventStorageService.instance.init();
-      
+
       // Aguarda o tempo mínimo da splash screen
       await Future.delayed(AppConstants.splashDuration);
-      
+
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -117,7 +117,7 @@ class _SplashPageState extends State<SplashPage>
                         color: Theme.of(context).colorScheme.surface,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withAlpha((0.2 * 255).round()),
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
@@ -140,31 +140,35 @@ class _SplashPageState extends State<SplashPage>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Nome da aplicação
                     Text(
                       AppConstants.appName,
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     // Versão da aplicação
                     Text(
                       'v${AppConstants.appVersion}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
-                      ),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimary
+                                .withAlpha((0.8 * 255).round()),
+                          ),
                     ),
-                    
+
                     const SizedBox(height: 48),
-                    
+
                     // Indicador de carregamento ou botão de continuar
                     _isLoading
                         ? Column(
@@ -177,16 +181,24 @@ class _SplashPageState extends State<SplashPage>
                               const SizedBox(height: 16),
                               Text(
                                 'Carregando...',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary
+                                          .withAlpha((0.8 * 255).round()),
+                                    ),
                               ),
                             ],
                           )
                         : ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.surface,
-                              foregroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.surface,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.primary,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 32,
                                 vertical: 16,

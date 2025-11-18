@@ -107,11 +107,13 @@ class _EventFormPageState extends State<EventFormPage> {
       }
 
       if (success) {
+        if (!mounted) return;
         _showSuccessSnackBar(_isEditing
             ? 'Evento atualizado com sucesso!'
             : 'Evento criado com sucesso!');
         Navigator.of(context).pop(true);
       } else {
+        if (!mounted) return;
         _showErrorSnackBar('Erro ao salvar evento');
       }
     } catch (e) {

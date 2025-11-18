@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import '../../database/dao/evento_dao.dart';
 import '../../models/modelo_principal.dart';
-import '../../services/lib/services/analytics_service.dart';
+import 'package:trabalho/services/lib/services/analytics_service.dart';
 import 'formulario.dart';
 import '../../shared/widgets/app_drawer.dart';
 
@@ -29,7 +29,8 @@ class _ListaEventosState extends State<ListaEventos> {
   @override
   void dispose() {
     if (_enteredTime != null) {
-      AnalyticsService.logTime('time_lista_v1', DateTime.now().difference(_enteredTime!));
+      AnalyticsService.logTime(
+          'time_lista_v1', DateTime.now().difference(_enteredTime!));
     }
     super.dispose();
   }
@@ -47,9 +48,11 @@ class _ListaEventosState extends State<ListaEventos> {
 
   Future<void> _editarEvento(Evento evento) async {
     await AnalyticsService.increment('lista_v1_edit_click');
+    if (!mounted) return;
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (_) => FormularioEvento(evento: evento, source: 'v1')),
+      MaterialPageRoute(
+          builder: (_) => FormularioEvento(evento: evento, source: 'v1')),
     );
     if (result == true) {
       _loadEventos();
@@ -59,6 +62,7 @@ class _ListaEventosState extends State<ListaEventos> {
 
   Future<void> _novoEvento() async {
     await AnalyticsService.increment('lista_v1_new_click');
+    if (!mounted) return;
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(builder: (_) => const FormularioEvento(source: 'v1')),
@@ -102,7 +106,8 @@ class _ListaEventosState extends State<ListaEventos> {
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: ListTile(
                   title: Text(evento.nome),
-                  subtitle: Text("${evento.tipo} • ${evento.data.day}/${evento.data.month}/${evento.data.year}"),
+                  subtitle: Text(
+                      "${evento.tipo} • ${evento.data.day}/${evento.data.month}/${evento.data.year}"),
                   onTap: () async {
                     await AnalyticsService.increment('lista_v1_item_click');
                     // você pode abrir um detalhe se quiser
@@ -121,10 +126,15 @@ class _ListaEventosState extends State<ListaEventos> {
                             context: context,
                             builder: (ctx) => AlertDialog(
                               title: const Text('Confirmar exclusão'),
-                              content: Text('Excluir o evento "${evento.nome}"?'),
+                              content:
+                                  Text('Excluir o evento "${evento.nome}"?'),
                               actions: [
-                                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
-                                ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Excluir')),
+                                TextButton(
+                                    onPressed: () => Navigator.pop(ctx, false),
+                                    child: const Text('Cancelar')),
+                                ElevatedButton(
+                                    onPressed: () => Navigator.pop(ctx, true),
+                                    child: const Text('Excluir')),
                               ],
                             ),
                           );

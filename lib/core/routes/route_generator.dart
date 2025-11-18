@@ -12,13 +12,13 @@ class RouteGenerator {
     switch (settings.name) {
       case AppRoutes.splash:
         return _createRoute(const SplashPage());
-        
+
       case AppRoutes.eventList:
         return _createRoute(const EventListPage());
-        
+
       case AppRoutes.eventForm:
         return _createRoute(const EventFormPage());
-        
+
       case AppRoutes.eventEdit:
         final args = settings.arguments as Map<String, dynamic>?;
         if (args != null) {
@@ -29,12 +29,12 @@ class RouteGenerator {
           }
         }
         return _createErrorRoute('Evento não encontrado');
-        
+
       default:
         return _createErrorRoute('Rota não encontrada');
     }
   }
-  
+
   /// Cria uma rota com transição personalizada
   static PageRouteBuilder _createRoute(Widget page) {
     return PageRouteBuilder(
@@ -43,11 +43,11 @@ class RouteGenerator {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
         const curve = Curves.easeInOut;
-        
+
         var tween = Tween(begin: begin, end: end).chain(
           CurveTween(curve: curve),
         );
-        
+
         return SlideTransition(
           position: animation.drive(tween),
           child: child,
@@ -55,7 +55,7 @@ class RouteGenerator {
       },
     );
   }
-  
+
   /// Cria uma rota de erro
   static Route<dynamic> _createErrorRoute(String message) {
     return MaterialPageRoute(

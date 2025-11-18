@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import '../../database/dao/evento_dao.dart';
 import '../../models/modelo_principal.dart';
-import '../../services/lib/services/analytics_service.dart';
+import 'package:trabalho/services/lib/services/analytics_service.dart';
 
 class FormularioEvento extends StatefulWidget {
   final Evento? evento;
@@ -77,6 +77,7 @@ class _FormularioEventoState extends State<FormularioEvento> {
       // analytics: editar salvo (por source)
       final src = widget.source ?? 'unknown';
       await AnalyticsService.increment('lista_${src}_edit_save');
+      if (!mounted) return;
       Navigator.pop(context, true);
     } else {
       final novo = Evento(
@@ -89,6 +90,7 @@ class _FormularioEventoState extends State<FormularioEvento> {
       await dao.salvar(novo);
       final src = widget.source ?? 'unknown';
       await AnalyticsService.increment('lista_${src}_new_save');
+      if (!mounted) return;
       Navigator.pop(context, true);
     }
   }

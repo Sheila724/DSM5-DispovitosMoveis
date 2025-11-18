@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 
 /// Widget reutilizável para seleção de data
-/// 
+///
 /// Este componente é Stateless e usa callbacks para comunicar mudanças,
 /// seguindo o princípio de responsabilidade única
 class DatePickerField extends StatelessWidget {
   /// Data atualmente selecionada
   final DateTime? selectedDate;
-  
+
   /// Callback chamado quando uma data é selecionada
   final ValueChanged<DateTime?> onDateSelected;
-  
+
   /// Data mínima selecionável (padrão: hoje)
   final DateTime? firstDate;
-  
+
   /// Data máxima selecionável (padrão: 2100)
   final DateTime? lastDate;
-  
+
   /// Define se o campo é obrigatório
   final bool isRequired;
-  
+
   /// Texto de erro a ser exibido
   final String? errorText;
 
@@ -37,7 +37,8 @@ class DatePickerField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    final effectiveFirstDate = firstDate ?? DateTime(today.year, today.month, today.day);
+    final effectiveFirstDate =
+        firstDate ?? DateTime(today.year, today.month, today.day);
     final effectiveLastDate = lastDate ?? DateTime(2100);
 
     return Padding(
@@ -48,21 +49,22 @@ class DatePickerField extends StatelessWidget {
           Text(
             isRequired ? 'Data do Evento *' : 'Data do Evento',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
           const SizedBox(height: 8),
           InkWell(
-            onTap: () => _showDatePicker(context, effectiveFirstDate, effectiveLastDate),
+            onTap: () =>
+                _showDatePicker(context, effectiveFirstDate, effectiveLastDate),
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: errorText != null 
-                    ? Theme.of(context).colorScheme.error
-                    : Theme.of(context).colorScheme.outline,
+                  color: errorText != null
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.outline,
                 ),
                 borderRadius: BorderRadius.circular(12),
                 color: Theme.of(context).colorScheme.surface,
@@ -108,7 +110,7 @@ class DatePickerField extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Exibe o seletor de data
   Future<void> _showDatePicker(
     BuildContext context,
@@ -121,16 +123,16 @@ class DatePickerField extends StatelessWidget {
       firstDate: firstDate,
       lastDate: lastDate,
     );
-    
+
     if (selectedDateTime != null) {
       onDateSelected(selectedDateTime);
     }
   }
-  
+
   /// Formata a data para exibição
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/'
-           '${date.month.toString().padLeft(2, '0')}/'
-           '${date.year}';
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
   }
 }
