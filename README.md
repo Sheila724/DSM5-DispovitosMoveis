@@ -80,10 +80,10 @@ dev_dependencies:
 ### Passos para execução
 
 1. **Clone o repositório**
-   ```bash
-   git clone https://github.com/Sheila724/DSM5-DispovitosMoveis.git
-   cd DSM5-DispovitosMoveis
-   ```
+  ```bash
+  git clone https://github.com/Sheila724/DSM5-DispositivosMoveis.git
+  cd DSM5-DispositivosMoveis
+  ```
 
 2. **Instale as dependências**
    ```bash

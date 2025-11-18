@@ -77,7 +77,7 @@ class _ListaEventosState extends State<ListaEventos> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Lista de Eventos (V1)"),
+        title: const Text("Lista de Eventos — Compacta"),
       ),
       drawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton(

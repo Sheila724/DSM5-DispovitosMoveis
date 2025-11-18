@@ -78,7 +78,7 @@ class _ListaEventosV2State extends State<ListaEventosV2> {
     // Visual alternativo: cards maiores com cor de fundo
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Lista de Eventos (V2)"),
+        title: const Text("Lista de Eventos — Detalhada"),
       ),
       drawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton(
